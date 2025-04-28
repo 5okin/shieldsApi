@@ -3,7 +3,7 @@ const helmet = require("helmet");
 const compression = require("compression");
 const cors = require("cors");
 const routes = require("./routes");
-const { limiter, ipWhitelist, blockBots, limitPayload, corsOptions } = require("./middlewares");
+const { limiter, shieldAgentWhitelist, blockBots, limitPayload, corsOptions } = require("./middlewares");
 
 
 const app = express();
@@ -14,7 +14,7 @@ app.use(helmet());
 app.use(compression());
 app.use(cors(corsOptions));
 app.use(limiter);
-app.use(ipWhitelist);
+app.use(shieldAgentWhitelist);
 app.use(blockBots);
 app.use(limitPayload);
 app.use(express.json({ limit: "1kb" }));

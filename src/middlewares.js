@@ -12,6 +12,18 @@ const limiter = rateLimit({
     keyGenerator: (req) => req.ip
 });
 
+function shieldAgentWhitelist(req, res, next){
+    const userAgent = req.headers['user-agent'] || '';
+    const requestIP = req.ip || req.remoteAddress;
+
+    if (userAgent.toLowerCase().includes('shields.io')) {
+        console.log(`✅ Shields.io detected: ${userAgent} ${requestIP}`);
+        next(); // Allow the request
+    } else {
+        console.log(`🚫 Non-Shields.io request blocked: ${userAgent} ${requestIP}`);
+        return res.status(403).json({ error: "Forbidden: Invalid IP" });
+    }
+}
 
 // IP white list
 const allowedIPRange = /^66\.225\.222\.\d+$/;
@@ -56,4 +68,4 @@ const corsOptions = {
     allowedHeaders: ["Content-Type"]
 };
 
-module.exports = { limiter, ipWhitelist, blockBots, limitPayload, limitQuery, corsOptions };
+module.exports = { limiter, shieldAgentWhitelist, ipWhitelist, blockBots, limitPayload, limitQuery, corsOptions };
