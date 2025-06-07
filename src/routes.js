@@ -6,6 +6,17 @@ const router = express.Router();
 const NodeCache = require("node-cache");
 const cache = new NodeCache({ stdTTL: 300 }); // 300 seconds = 5 minutes
 
+// MARK: formatNumber
+function formatNumber(num) {
+  if (num >= 1_000_000) {
+    return (num / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M';
+  }
+  if (num >= 1_000) {
+    return (num / 1_000).toFixed(1).replace(/\.0$/, '') + 'K';
+  }
+  return num.toString();
+}
+
 // MARK: getStats
 async function getStats(platform) {
     try {
@@ -23,13 +34,13 @@ async function getStats(platform) {
               ]).toArray();
               const totalPopulation = result.length > 0 ? result[0].totalPopulation : 0;
 
-            return totalPopulation;
+            return formatNumber(totalPopulation);
         } else {
             const stats = await db.collection(DB_COLLECTION).findOne(
                 { social: platform },
                 { projection: { _id: 0, followers: 1 } }
             );
-            return stats;
+            return formatNumber(stats.followers);
         }
     } catch (error) {
         console.error(error);
@@ -76,12 +87,12 @@ router.get("/api/stats/:platform",
                 break;
             case "bluesky":
                 response.label = "Followers on Bluesky"
-                response.message = stats.followers ? `${stats.followers}` : "No data";
+                response.message = stats ? `${stats}` : "No data";
                 response.color = "#0285ff";
                 break;
             case "twitter":
                 response.label = "Followers on X"
-                response.message = stats.followers ? `${stats.followers}` : "No data";
+                response.message = stats ? `${stats}` : "No data";
                 response.color = "#211f2d";
                 break;
         }
