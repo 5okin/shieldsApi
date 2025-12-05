@@ -1,5 +1,5 @@
 app = "shieldsapi"
-primary_region = "fra"
+primary_region = "iad"
 
 [http_service]
 auto_start_machines = true
